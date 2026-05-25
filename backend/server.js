@@ -48,7 +48,7 @@ function processMessage(msg) {
   if (isNewChat) {
     chats.set(chatId, {
       id: chatId,
-      title: msg.chat.title
+      title: msg.chat.title || msg.chat.username
         || `${msg.chat.first_name || ''} ${msg.chat.last_name || ''}`.trim()
         || String(chatId),
       type: msg.chat.type
@@ -96,6 +96,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_message', async ({ chatId, text }) => {
+    if (!chatId || typeof text !== 'string' || !text.trim()) {
+      socket.emit('send_error', 'Invalid message parameters');
+      return;
+    }
     try {
       const data = await sendTelegramMessage(chatId, text);
       if (data.ok) {
@@ -104,7 +108,7 @@ io.on('connection', (socket) => {
           id: msg.message_id,
           text: msg.text,
           from: 'Bot',
-          fromId: msg.from.id,
+          fromId: msg.from?.id || 0,
           date: msg.date,
           chatId,
           isBot: true
