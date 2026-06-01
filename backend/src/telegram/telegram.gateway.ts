@@ -10,7 +10,7 @@ import { TelegramService } from './telegram.service';
 @WebSocketGateway({ cors: { origin: '*' } })
 export class TelegramGateway implements OnGatewayConnection {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   constructor(private readonly telegramService: TelegramService) {
     this.telegramService.setCallbacks({
